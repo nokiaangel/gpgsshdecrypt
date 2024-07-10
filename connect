@@ -1,0 +1,24 @@
+#!/bin/bash
+
+IPADDRESS="192.168.200.21"
+
+decrypt="$(cat <<-EOF
+    if [ ! -f "/home/pi/hello.sh" ]; then
+        gpg --batch --passphrase password -d /home/pi/hello.sh.gpg > /home/pi/hello.sh
+    	cd /home/pi
+	chmod +x hello.sh	
+	sudo ./hello.sh
+    fi
+
+EOF
+)"
+while true; do
+	if ping -c 1 $IPADDRESS &> /dev/null 
+	then
+		echo "$IPADDRESS is online"
+		sshpass -p "password" ssh pi@$IPADDRESS "$decrypt"
+	else
+		echo "$IPADDRESS is offline"
+	fi
+	sleep 15 
+done
